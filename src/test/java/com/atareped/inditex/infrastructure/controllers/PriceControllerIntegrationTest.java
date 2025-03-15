@@ -2,6 +2,9 @@ package com.atareped.inditex.infrastructure.controllers;
 
 import com.atareped.inditex.domain.models.Price;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -11,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
+import static java.lang.Double.parseDouble;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -46,5 +50,27 @@ public class PriceControllerIntegrationTest {
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
         assertNotNull(response.getBody());
         assertEquals(expectedPrice, response.getBody());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"35455, 1, 2020-06-14T10:00:00, 35.50", "35455, 1, 2020-06-14T16:00:00, 25.45",
+            "35455, 1, 2020-06-14T21:00:00, 35.50", "35455, 1, 2020-06-15T10:00:00, 30.50",
+            "35455, 1, 2020-06-16T21:00:00, 38.95"})
+    void shouldGetTheProperPriceGivenThisParameters(ArgumentsAccessor argumentsAccessor){
+        //do
+        String url = "/price/" +
+                argumentsAccessor.getString(0) + "/" +
+                argumentsAccessor.getString(1) + "/" +
+                argumentsAccessor.getString(2);
+
+        double expectedPrice = parseDouble(argumentsAccessor.getString(3));
+        //when
+        ResponseEntity<Price> response = client.getForEntity(url, Price.class);
+
+        //then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+        assertNotNull(response.getBody());
+        assertEquals(expectedPrice, response.getBody().getPrice());
     }
 }
