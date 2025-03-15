@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GlobalExceptionHandlerTest {
 
@@ -26,7 +25,7 @@ public class GlobalExceptionHandlerTest {
         PriceNotFoundException ex = new PriceNotFoundException(message);
         ResponseEntity<Object> response = globalExceptionHandler.handePriceNotFoundException(ex, null);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertTrue(response.hasBody());
+        assertNotNull(response.getBody());
         assertTrue(response.getBody().toString().contains(message));
     }
 
@@ -37,7 +36,7 @@ public class GlobalExceptionHandlerTest {
         UnexpectedDataBaseException ex = new UnexpectedDataBaseException(message);
         ResponseEntity<Object> response = globalExceptionHandler.handleUnexpectedDataBaseException(ex, null);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertTrue(response.hasBody());
+        assertNotNull(response.getBody());
         assertTrue(response.getBody().toString().contains(expectedMessage));
     }
 }
